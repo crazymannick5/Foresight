@@ -9,7 +9,12 @@ def load_csv_to_matrix(file_path):
     data_matrix = df.iloc[:,1:].values.T # matrix creation, again using slicing, using integer position
     data_matrix = np.where(data_matrix == -1, np.nan, data_matrix) #handle missing data
     return data_matrix, stock_names #out put, data_matrix:numpy.ndarray stock_names:pandas.Index
-
+"""This function (load_csv_to_matrix) takes the stock data in the following form:
+    the first row:
+    date label, and the consecutively stock labes
+    
+    first column: first the date label and then consecutively the dates
+    """
 
 def print_matrix_and_names(stock_names, data_matrix):
     """
@@ -29,5 +34,6 @@ def print_matrix_and_names(stock_names, data_matrix):
         print(row)
 
 
-data_matrix, stock_names = load_csv_to_matrix("stock_prices.csv")
+data_matrix, stock_names = load_csv_to_matrix("stock_prices_sample.csv")
 print_matrix_and_names(stock_names, data_matrix)
+
