@@ -16,7 +16,7 @@ def load_csv_to_matrix(file_path):
     first column: first the date label and then consecutively the dates
     """
 
-def print_matrix_and_names(stock_names, data_matrix):
+def print_matrix_and_names(data_matrix, stock_names):
     """
     Prints the stock names and data matrix in a readable format.
 
@@ -34,6 +34,4 @@ def print_matrix_and_names(stock_names, data_matrix):
         print(row)
 
 
-data_matrix, stock_names = load_csv_to_matrix("stock_prices_sample.csv")
-print_matrix_and_names(stock_names, data_matrix)
 
