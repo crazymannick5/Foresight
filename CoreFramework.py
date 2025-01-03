@@ -17,7 +17,7 @@ def hMatrixTUpdate(H, Z, Wx, Wh, Wy, bH, by, X, aID):
     return(H, Z)
 
 def yOutputUpdate(H, yHat, by, Wy, aID):
-    Yhat = af.apply_activation((np.dot(Wy,H)+by),aID)
+    yHat = af.apply_activation((np.dot(Wy,H)+by),aID)
     return(yHat)
 
 
