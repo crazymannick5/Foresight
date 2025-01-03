@@ -62,4 +62,41 @@ def c_dby(dby, dyHatT):
     dby = np.sum(dyHatT, axis=1, keepdims=True)
     return(dby)
 
+def c_tdH(dyHatT, Wy, H, by, aID):
+    # Step 1: Compute Z_y = Wy * H + by
+    Z_y = np.dot(Wy, H) + by  # Shape: (output_size, time_steps)
+    
+    # Step 2: Compute activation derivative f'(Z_y)
+    f_prime = af.apply_activation_derivative(Z_y, aID)  # Shape: (output_size, time_steps)
+    
+    # Step 3: Element-wise multiply dyHatT with f'(Z_y)
+    weighted_dyHatT = dyHatT * f_prime  # Shape: (output_size, time_steps)
+    
+    # Step 4: Compute tdH = Wy^T * (dyHatT * f'(Z_y))
+    tdH = np.dot(Wy.T, weighted_dyHatT)  # Shape: (hidden_size, time_steps)
+    
+    return tdH
 
+
+def dhtMatrixUpdate(dH, tdH, aID, Wh, dyHatT, Wy, Z):
+    dH[:,0] = np.dot(dyHatT[:,(dyHatT.shape[1]-1)],Wy.T)
+    for j in range(1, dH.shape[1]):
+        i = dH.shape[1]-1-j
+        dH[:,(i)] = tdH[:,i]+np.dot(dH[:,(i+1)],(af.apply_activation_derivative((Z[:,i+1]),aID)))
+    return(dH)
+
+def dWxMatrixUpdate(dWx, X, dH, Z, aID):
+    dWx = np.dot((af.apply_activation_derivative(Z,aID)*dH),X.T)
+    return(dWx)
+
+def dWhMatrixUpdate(dWh, H, dH, Z, aID):
+    sum = 0
+    for t in range(1, H.shape[1]):
+        sum = sum + (np.outer(((af.apply_activation_derivative(Z[:,t],aID))*dH[:,t]), H[:,t-1]))
+    return(sum)
+
+def dbh(dH, Z, aID):
+    sum = 0
+    for t in range(1, Z.shape[1]):
+        sum = sum + (af.apply_activation_derivative(Z[:,t]) * dH[:,t])
+    return(sum)
