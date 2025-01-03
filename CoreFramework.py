@@ -59,7 +59,7 @@ def c_dWy(dWy, dyHatT, H):
     return(dWy)
 
 def c_dby(dby, dyHatT):
-    dby = np.sum(dyHat, axis=1, keepdims=True)
+    dby = np.sum(dyHatT, axis=1, keepdims=True)
     return(dby)
 
 
