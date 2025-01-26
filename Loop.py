@@ -4,12 +4,14 @@ import Activate as af
 import dyHatT as dy
 import CoreFramework as cf
 import DataIntake as di
+import yTrue as yt
 
 class network:
     
     def __init__(self, name_input):
         self.name = name_input
         self.X = None
+        self.XLast = None
 
         self.Wx = None
         self.Wh = None
@@ -20,6 +22,61 @@ class network:
 
         self.Z = None
 
+        self.yTrue = None
+
+        self.aID = 1
+        self.LID = 1
+        self.hU = 4
+        self.oU = 4
+        
+
+
+
+    import numpy as np
+
+    def split_last_column(self, X):
+        """
+        Splits a matrix into two parts: one without the last column, and the last column separately.
+
+        Args:
+            X (np.ndarray): Input matrix (rows = tickers, columns = time steps).
+
+        Returns:
+            tuple: 
+                - np.ndarray: Matrix without the last column.
+                - np.ndarray: The last column of the original matrix.
+        """
+        if X.shape[1] < 1:
+            raise ValueError("Input matrix must have at least one column.")
+
+        # Split the matrix
+        X_truncated = X[:, :-1]  # All rows, all columns except the last
+        X_last = X[:, -1]        # All rows, only the last column
+
+        return X_truncated, X_last
+
+
+    def get_ids():
+        """
+        Prompts the user to input a Loss Function ID (LID) and an Activation Function ID (aID),
+        and returns them.
+
+        Returns:
+            tuple: A tuple containing:
+                - LID (str): The loss function identifier entered by the user.
+                - aID (str): The activation function identifier entered by the user.
+        """
+        # Prompt user for Loss Function ID
+        LID = input("Enter the Loss Function ID (LID): ").strip()
+
+        # Prompt user for Activation Function ID
+        aID = input("Enter the Activation Function ID (aID): ").strip()
+
+        hU = input("Enter the number of hidden Units (hU): ").strip()
+
+
+
+        return LID, aID, hU
 
 
     def initialize_rnn_matrices(self, X, hidden_units, output_units):
@@ -70,7 +127,17 @@ class network:
 
 
     def startNet(self, tickers, start_date, end_date, interval, data_type, hidden_units, output_units):
-        self.X = di.getX(tickers, start_date, end_date, interval, data_type)
+        self.X, self.XLast = self.split_last_column(di.getX(tickers, start_date, end_date, interval, data_type))
+        self.LID, self.aID, self.hU = self.getids()
+        self.yTrue = yt.getYtrue(self.X,self.XLast,self.aID)
+        self.oU = self.yTrue.shape[0]
+        self.initialize_rnn_matrices(self.X,self.hU,self.oU)
+
+
+
+
+
+
 
 
 
