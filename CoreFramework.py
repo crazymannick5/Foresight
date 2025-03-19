@@ -109,7 +109,7 @@ def c_tdH(dyHatT, Wy, H, by, aID):
     return tdH
 
 
-def dhtMatrixUpdate(dH, tdH, aID, Wh, dyHatT, Wy, Z):
+def dhtMatrixUpdate(tdH, aID, Wh, dyHatT, Wy, Z):
     dH = np.zeros_like(tdH)
     dH[:,tdH.shape[1]-1] = tdH[:,tdH.shape[1]-1]
     #dH[:,0] = np.dot(dyHatT[:,(dyHatT.shape[1]-1)],Wy.T)

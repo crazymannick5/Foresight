@@ -21,18 +21,27 @@ class network:
         self.by = None
 
         self.Z = None
+        self.H = None
 
         self.yTrue = None
+        self.yHat = None
 
         self.aID = 1
         self.LID = 1
         self.hU = 4
         self.oU = 4
+
+        self.dWx = None
+        self.dWh = None
+        self.dWy = None
+        self.dbh = None
+        self.dby = None
+        self.dyHatT = None
+
         
 
 
 
-    import numpy as np
 
     def split_last_column(self, X):
         """
@@ -112,16 +121,22 @@ class network:
 
         # Initialize hidden state matrix Z with zeros
         # Z has shape: hidden_units x (time_steps + 1), accounting for t=0 initialization
-        Z = np.zeros((hidden_units, time_steps + 1))
+        self.Z = np.zeros((hidden_units, time_steps))
+
+        self.H = np.zeros((hidden_units, time_steps))
+
+        self.yHat = np.zeros((output_units,1))
 
         # Return all matrices in a dictionary
         return {
-            "Wx": Wx,
-            "Wh": Wh,
-            "Wy": Wy,
-            "bh": bh,
-            "by": by,
-            "Z": Z
+            "Wx": self.Wx,
+            "Wh": self.Wh,
+            "Wy": self.Wy,
+            "bh": self.bh,
+            "by": self.by,
+            "Z": self.Z,
+            "H":self.H,
+            "yHat":self.yHat
         }
     
 
@@ -134,13 +149,28 @@ class network:
         self.initialize_rnn_matrices(self.X,self.hU,self.oU)
 
 
+    def forwardProp(self):
+        self.H, self.Z = cf.hMatrixTUpdate(self.H, self.Z, self.Wx, self.Wh, self.Wy, self.bh, self.by, self.X, self.aID)
+        self.yHat = cf.yOutputUpdate(self.H, self.yHat, self.by, self.Wy, self.aID)
 
 
+    
+    def backwardProp(self):
+        self.dyHatT = cf.c_dyHatT(self.dyHatT,self.yHat,self.yTrue,self.LID)
+        self.dWy = cf.c_dWy(self.dWy,self.dyHatT,self.H)
+        self.dby = cf.c_dby(self.dby, self.dyHatT)
+        dH = cf.dhtMatrixUpdate(cf.c_tdH(self.dyHatT,self.Wy,self.H,self.by,self.aID),self.aID,self.Wh,self.dyHatT,self.Wy,self.Z)
+        self.dWx = cf.dWxMatrixUpdate(self.dWx, self.X, dH, self.Z, self.aID)
+        self.dWh = cf.dWhMatrixUpdate(self.dWh, self.H, dH, self.Z, self.aID)
+        self.dbh = cf.dbh(dH, self.Z, self.aID)
 
 
-
-
-
-    def forwardProp():
+    def weightUpdate(self):
+        self.Wy = self.Wy - (self.dWy * .001)
+        self.by = self.by - (self.dby * .001)
+        self.Wx = self.Wx - (self.dWx * .001)
+        self.Wh = self.Wh - (self.dWh * .001)
+        self.bh = self.bh - (self.dbh * .001)
+        
 
 
